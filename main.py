@@ -25,15 +25,18 @@ minemployees=min(employees)
 maxemployees=max(employees)
 col1, col2 = st.columns(2)
 with col2:
-    revensec = st.slider("Min Revenue", minreven, maxreven)
-    profitssec=st.slider("Min Profit",minprofits,maxprofits)
-    employeessec=st.slider("Min Employee",minemployees,maxemployees)
+    revensec = st.slider("Min Revenue",value=[minreven,maxreven],min_value=minreven,max_value=maxreven)
+    profitssec=st.slider("Min Profit",value=[minprofits,maxprofits],min_value=minprofits,max_value=maxprofits)
+    employeessec=st.slider("Min Employee",value=[minemployees,maxemployees],min_value=minemployees,max_value=maxemployees)
     if revensec:
-        dosya = dosya[dosya["revenues"] >= revensec]
+        dosya = dosya[dosya["revenues"] >= revensec[0]]
+        dosya=dosya[dosya["revenues"]<=revensec[1]]
     if profitssec:
-        dosya=dosya[dosya["profits"]>=profitssec]
+        dosya=dosya[dosya["profits"]>=profitssec[0]]
+        dosya=dosya[dosya["profits"]<=profitssec[1]]
     if employeessec:
-        dosya=dosya[dosya["employees"]>=employeessec]
+        dosya=dosya[dosya["employees"]>=employeessec[0]]
+        dosya=dosya[dosya["employees"]<=employeessec[1]]
 with col1:
     dosya=dosya.reset_index()
     st.dataframe(dosya)
@@ -50,6 +53,7 @@ st.download_button(
 
 newdf=pd.read_csv("fortune.csv")
 newdf=newdf[["rank","year","name","sector","industry","profits","hqcity","profitable","ceowoman","jobgrowth"]]
+newdf["rank"]=newdf["rank"].apply(int)
 @st.cache
 def sirketfiltre(sirketad):
     sirketbul=newdf[newdf["name"].str.contains(sirketad)]
@@ -64,7 +68,7 @@ col1,col2=st.columns(2)
 with col1:
     sirketisim=st.text_input("Enter Company Name")
     newdf=sirketfiltre(sirketisim)
-    ranksec=st.slider("Min Rank",minrank,maxrank)
+    ranksec=st.slider("Min Rank",value=[minrank,maxrank],min_value=minrank,max_value=maxrank)
     yearsec=st.number_input("Year",minyear,maxyear,value=2021)
     gendersec=st.checkbox("Gender(Default=All)")
     profitablesec=st.checkbox("Profitable (Default=All)")
@@ -83,7 +87,8 @@ with col1:
         newdf=newdf[newdf["ceowoman"]=="yes"]
         st.write("Only CEO Woman")
     if ranksec:
-        newdf=newdf[newdf["rank"]>=ranksec]
+        newdf=newdf[newdf["rank"]>=ranksec[0]]
+        newdf=newdf[newdf["rank"]<=ranksec[1]]
     if yearsec:
         newdf=newdf[newdf["year"]==yearsec]
     if jobgrowthst:
